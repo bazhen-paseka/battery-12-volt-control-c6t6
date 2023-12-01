@@ -28,14 +28,17 @@
 
 	#include "stdio.h"
 	#include <string.h>
+	#include "lcd1602_fc113_sm.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
 	#define 	MY_DEBUG
 	#define 	UART_DEBUG		&huart1
 	#define 	SOFT_VERSION	1101
+	//#define		LCD1602
 
 /* USER CODE END PTD */
 
@@ -134,6 +137,31 @@ int main(void)
 	UartDebug(DataChar);
 	alarma = 1 ;
 
+//		#define ADR_I2C_FC113 0x27
+
+		lcd1602_fc113_struct h1_lcd1602_fc113 =
+		{
+			.i2c = &hi2c1,
+			.device_i2c_address = ADR_I2C_FC113
+		};
+
+
+		//LCD1602_Scan_I2C_bus(&h1_lcd1602_fc113);
+
+		LCD1602_Scan_I2C_to_UART(&hi2c1, &huart1);
+
+		LCD1602_Init(&h1_lcd1602_fc113);
+
+		LCD1602_Clear(&h1_lcd1602_fc113);
+		sprintf(DataChar,"Steps Counter\r\n");
+		LCD1602_Print_Line(&h1_lcd1602_fc113, DataChar, strlen(DataChar));
+		UartDebug(DataChar);
+		sprintf(DataChar," STP100M\r\n");
+		LCD1602_Print_Line(&h1_lcd1602_fc113, DataChar, strlen(DataChar));
+		UartDebug(DataChar);
+		HAL_Delay(1000);
+		LCD1602_Clear(&h1_lcd1602_fc113);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -188,7 +216,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -199,11 +227,11 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
